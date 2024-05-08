@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Daily Puzzler</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Add any additional custom styles here */
+    </style>
+</head>
+<body class="font-sans antialiased bg-gray-100 h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-blue-500 text-white py-4 px-8">
+        <h1 class="text-2xl font-bold">The Daily Puzzler</h1>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow overflow-y-auto">
+        <!-- Monthly Scoreboard -->
+        <section class="p-4">
+            <h2 class="text-xl font-semibold mb-4">May Standings</h2>
+            <ul>
+                <!-- Sample data: replace with dynamic data -->
+                <li class="flex justify-between items-center py-2 border-b border-gray-300">
+                    <span class="font-semibold">Player 1</span>
+                    <span class="font-semibold">500</span>
+                </li>
+                <li class="flex justify-between items-center py-2 border-b border-gray-300">
+                    <span class="font-semibold">Player 2</span>
+                    <span class="font-semibold">450</span>
+                </li>
+                <!-- Add more players dynamically -->
+            </ul>
+        </section>
+
+        <!-- Game History -->
+        <section class="p-4">
+            <!-- Sample data: replace with dynamic data -->
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold mb-2">Monday, May 1st</h3>
+                <div class="flex space-x-4 overflow-x-auto">
+                    <!-- Game Cards -->
+                    <div class="flex-shrink-0 bg-white rounded-lg shadow-md p-4" style="min-width: 300px;">
+                        <h4 class="text-lg font-semibold mb-2">Connections</h4>
+                        <ul>
+                            <li class="mb-2">
+                                <span class="font-semibold">Player 1:</span>
+                                <span class="font-semibold">100</span>
+                                <!-- Add p for each line of text -->
+                                <p class="text-gray-600">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                                
+                            </li>
+                            <!-- Add more games dynamically -->
+                        </ul>
+                    </div>
+                    <!-- Add more game cards dynamically -->
+                </div>
+            </div>
+            <!-- Add more date sections dynamically -->
+        </section>
+    </main>
+</body>
+</html>
