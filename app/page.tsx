@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { DateTime } from "luxon";
-
+import {GameRecord, NYTGGameLeague} from "../utils/league";
 
 
 export default function Index() {
 
-  const [records, setRecords] = useState([]);
+  const [records, setRecords] = useState<GameRecord[]>([]);
   useEffect(() => {
     // Your code here
     fetch("https://arr213-azureZebra.web.val.run/")
@@ -20,20 +20,24 @@ export default function Index() {
             player: record[2],
             date: record[3],
             text: record[4],
-            game: record[4].split('\w+')[0],
+            game: record[4].split(/\W+/)[0],
             dt: DateTime.fromObject({
-              month: Number(record[3].split('-')[0]),
-              day: Number(record[3].split('-')[1]),
-              year: Number(record[3].split('-')[2])
+              month: Number(record[3].split('/')[0]),
+              day: Number(record[3].split('/')[1]),
+              year: Number(record[3].split('/')[2])
             }),
-          }
+          } as GameRecord;
+
           return recObj;
         }).sort((a, b) => b.dt.toUnixInteger() - a.dt.toUnixInteger());
         setRecords(recs);
       });
   }, []);
+
+  const league = new NYTGGameLeague(records);
+  console.log(league.getActiveSeasonGames());
+  console.log(records[0])
   
-  console.log("RECORDS", records);
 
   return (
     <div className="font-sans antialiased bg-gray-100 h-screen flex flex-col">
@@ -44,9 +48,9 @@ export default function Index() {
 
         {/* <!-- Main Content --> */}
         <main className="flex-grow overflow-y-auto text-black">
-            {/* <!-- Monthly Scoreboard --> */}
+            {/* <!-- Weekly Scoreboard --> */}
             <section className="p-4 text-gray-600">
-                <h2 className="text-xl font-semibold mb-4">May Standings</h2>
+                <h2 className="text-xl font-semibold mb-4">Weekly Standings - {}</h2>
                 <ul>
                     {/* <!-- Sample data: replace with dynamic data --> */}
                     <li className="flex justify-between items-center py-2 border-b border-gray-300">
@@ -64,6 +68,19 @@ export default function Index() {
             {/* <!-- Game History --> */}
             <section className="p-4">
                 {/* <!-- Sample data: replace with dynamic data --> */}
+                {
+                  records.map((record) => {
+                    return (
+                      <div className="flex-shrink-0 bg-white rounded-lg shadow-md p-4 mb-4" style={{minWidth: 300}}>
+                        <h4 className="text-lg font-semibold mb-2 text-gray-600">{record.game}</h4>
+                        <p className="font-semibold text-gray-600">{record.player}:</p>
+                        {record.text.split('\r\n').map(t => {
+                          return <p>{t}</p>
+                        })}
+                      </div>
+                    );
+                  })
+                }
                 <div className="mb-4">
                     <h3 className="text-lg font-semibold mb-2 text-gray-600">Monday, May 1st</h3>
                     <div className="flex space-x-4 overflow-x-auto">
