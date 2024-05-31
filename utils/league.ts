@@ -1,4 +1,5 @@
 import { DateTime } from "luxon";
+import _ from "lodash";
 
 export type GameRecord = {
   id: string;
@@ -66,11 +67,13 @@ export class NYTGGameLeague {
   }
   
   getActiveSeasonGames(startWeekDate?: string, endWeekDate?: string) {
-    const startWeekDt = startWeekDate ? DateTime.fromFormat('MM-DD-YYYY', startWeekDate) : DateTime.fromISO(new Date().toISOString());
-    const endWeekDt = endWeekDate || startWeekDt.plus({days: 7});
-    this.games.filter((record) => {
+    const startWeekDt = startWeekDate ? DateTime.fromFormat('MM-DD-YYYY', startWeekDate) : DateTime.fromISO(new Date().toISOString()).startOf('week');
+    const endWeekDt = endWeekDate ? DateTime.fromFormat('MM-DD-YYYY', endWeekDate) : startWeekDt.plus({days: 7});
+    console.log('Start:', startWeekDt.toISODate(), 'End:', endWeekDt.toISODate())
+    return this.games.filter((record) => {
+      // console.log(`Compare ${record.dt.toISODate()}:`, record.dt > startWeekDt, record.dt < endWeekDt);
       return record.dt >= startWeekDt && record.dt <= endWeekDt;
-    })
+    }).sort((a, b) => b.dt.toMillis() - a.dt.toMillis());
     
   }
 
@@ -82,11 +85,22 @@ export class NYTGGameLeague {
     return count;
   }
 
-  connectionsWin(rows: string[]) {
-    
-    let groups = ["🟨🟨🟨🟨","🟩🟩🟩🟩","🟦🟦🟦🟦","🟪🟪🟪🟪"];
-    groups.every(gr => rows.includes(gr));
+  getSeasonScores() {
+    const games = this.getActiveSeasonGames();
+    let scores = _.groupBy(games, 'player');
+    let playerScores = Object.keys(scores).map((player) => {
+      let playerGames = scores[player];
+      let playerScore = playerGames.reduce((acc, game) => acc + game.score, 0);
+      return { player, playerScore, playerGames }
+    });
+    return playerScores;
   }
+  getSeasonDates() {
+    const startWeekDt = DateTime.fromISO(new Date().toISOString()).startOf('week');
+    const endWeekDt = startWeekDt.plus({days: 7});
+    return [startWeekDt.toFormat('LLL dd'), endWeekDt.toFormat('LLL dd')]
+  }
+
 
 }
 

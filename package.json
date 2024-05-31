@@ -6,10 +6,12 @@
     "start": "next start"
   },
   "dependencies": {
+    "@next/font": "^14.2.3",
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
     "autoprefixer": "10.4.17",
     "geist": "^1.2.1",
+    "lodash": "^4.17.21",
     "luxon": "^3.4.4",
     "next": "latest",
     "postcss": "8.4.33",

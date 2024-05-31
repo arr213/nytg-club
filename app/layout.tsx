@@ -1,4 +1,5 @@
-import { GeistSans } from "geist/font/sans";
+// import { GeistSans } from "geist/font/sans";
+import {Tinos} from "@next/font/google";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -11,6 +12,8 @@ export const metadata = {
   description: "The fastest way to build apps with Next.js and Supabase",
 };
 
+const tinos = Tinos({ weight: ["400"], subsets: ["latin"]});
+
 export default function RootLayout({
   children,
 }: {
@@ -19,7 +22,7 @@ export default function RootLayout({
   return (
 
 
-    <html lang="en" className={GeistSans.className}>
+    <html lang="en" className={tinos.className}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>The Daily Puzzler</title>
