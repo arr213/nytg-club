@@ -21,6 +21,7 @@
     "typescript": "5.3.3"
   },
   "devDependencies": {
+    "@types/lodash": "^4.17.4",
     "@types/luxon": "^3.4.2",
     "@types/node": "20.11.5",
     "@types/react": "18.2.48",
