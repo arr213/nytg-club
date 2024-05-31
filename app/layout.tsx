@@ -1,5 +1,5 @@
 // import { GeistSans } from "geist/font/sans";
-import {Tinos} from "@next/font/google";
+import {Tinos} from "next/font/google";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -12,7 +12,12 @@ export const metadata = {
   description: "The fastest way to build apps with Next.js and Supabase",
 };
 
-const tinos = Tinos({ weight: ["400"], subsets: ["latin"]});
+const tinos = Tinos({ 
+  weight: ["400"], 
+  subsets: ["latin"], 
+  display: 'swap',
+  variable: '--font-tinos',
+});
 
 export default function RootLayout({
   children,
@@ -22,11 +27,11 @@ export default function RootLayout({
   return (
 
 
-    <html lang="en" className={tinos.className}>
+    <html lang="en" className={tinos.variable}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>The Daily Puzzler</title>
-        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+        {/* <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" /> */}
       </head>
       <body className="bg-background text-foreground">
         <main className="min-h-screen flex flex-col items-center">
