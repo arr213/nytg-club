@@ -1,8 +1,54 @@
 Given the records below, I am writing a typescript method processGame shown below.
 
-I would like the function to
+I would like help editing and completing the processGame method shown below.
+Notes:
+    gameNumber: I need to fix the definition of gameNumber so that it correctly gets the number for all types of games.
+    win: the win conditions for each type are as follows.
+        Wordle: Win if the last line of emojis are all green.
+        Strands: Strands will always be a win (true)
+        Connections: Win if there is a full line of 4 matching color emojis for each of the 4 colors.
+    score: The score conditions for each game type are as follows:
+        Wordle: 
+            - In the case of a loss, score 1 point
+            - 
 
-    processGame(gr: GameRecord): ProcessedGameRecord {
+    
+
+
+The current file is shown below:
+```import { DateTime } from "luxon";
+
+export type GameRecord = {
+  id: string;
+  email: string;
+  player: string;
+  date: string;
+  text: string;
+};
+
+export type ProcessedGameRecord = GameRecord & {
+  gameNumber: number;
+  gameType: string;
+  dt: DateTime;
+  score: number;
+  game_id: string; // `${gameType.toLowercase()}_${leftPad(gameNumber, 5, '0')}`
+  win: boolean;
+  error_status?: string;
+}
+
+export class NYTGGameLeague {
+  league: string;
+  gameRecords: GameRecord[];
+  games?: ProcessedGameRecord[];
+
+
+  constructor(gameRecords: GameRecord[]) {
+    this.league = "NYTG";
+    this.gameRecords = gameRecords;
+    this.games = this.gameRecords.map((gr) => this.processGame(gr))
+  }
+
+  processGame(gr: GameRecord): ProcessedGameRecord {
     const gameType = gr.text.split(/\W+/)[0];
     const gameNumber = Number(gr.text.split(/\W+/));
     const dt = DateTime.fromObject({
@@ -19,7 +65,22 @@ I would like the function to
     }
   }
 
-sample records below:
+
+  
+  getActiveSeasonGames(startWeekDate?: string, endWeekDate?: string) {
+    const startWeekDt = startWeekDate ? DateTime.fromFormat('MM-DD-YYYY', startWeekDate) : DateTime.fromISO(new Date().toISOString());
+    const endWeekDt = endWeekDate || startWeekDt.plus({days: 7});
+    this.gameRecords.filter((record) => {
+      return record.dt >= startWeekDt && record.dt <= endWeekDt;
+    })
+    
+  }
+
+}
+
+```
+
+The sample records below:
 [
     {
         "id": 1,

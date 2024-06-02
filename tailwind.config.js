@@ -6,6 +6,12 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-tinos)'],
+        mono: ['var(--font-tinos)'],
+        serif: ['var(--font-tinos)'],
+        ['sans-serif']: ['var(--font-tinos)'],
+      },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",

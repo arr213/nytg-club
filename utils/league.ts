@@ -13,9 +13,9 @@ export type ProcessedGameRecord = GameRecord & {
   gameNumber: number;
   gameType: string;
   dt: DateTime;
-  score?: number;
-  game_id?: string; // `${gameType.toLowercase()}_${leftPad(gameNumber, 5, '0')}`
-  win?: boolean;
+  score: number;
+  game_id: string; // `${gameType.toLowercase()}_${leftPad(gameNumber, 5, '0')}`
+  win: boolean;
   error_status?: string;
 }
 
@@ -23,7 +23,6 @@ export class NYTGGameLeague {
   league: string;
   gameRecords: GameRecord[];
   games: ProcessedGameRecord[];
-
 
   constructor(gameRecords: GameRecord[]) {
     this.league = "NYTG";
@@ -33,7 +32,7 @@ export class NYTGGameLeague {
 
   processGame(gr: GameRecord): ProcessedGameRecord {
     const gameType = gr.text.split(/\W+/)[0];
-    const gameNumber = Number(gr.text.split(/\W+/));
+    const gameNumber = this.getGameNumber(gr);
     const dt = DateTime.fromObject({
       month: Number(gr.date.split('/')[0]),
       day: Number(gr.date.split('/')[1]),
@@ -57,6 +56,7 @@ export class NYTGGameLeague {
       score = win ? 11 - rows.length : 1;
     }
     return {
+      game_id: `${gameType.toLowerCase()}_${gameNumber.toString().padStart(5, '0')}`,
       ...gr,
       gameType,
       gameNumber,
@@ -67,21 +67,20 @@ export class NYTGGameLeague {
   }
   
   getActiveSeasonGames(startWeekDate?: string, endWeekDate?: string) {
-    const startWeekDt = startWeekDate ? DateTime.fromFormat('MM-DD-YYYY', startWeekDate) : DateTime.fromISO(new Date().toISOString()).startOf('week');
-    const endWeekDt = endWeekDate ? DateTime.fromFormat('MM-DD-YYYY', endWeekDate) : startWeekDt.plus({days: 7});
-    console.log('Start:', startWeekDt.toISODate(), 'End:', endWeekDt.toISODate())
-    return this.games.filter((record) => {
-      // console.log(`Compare ${record.dt.toISODate()}:`, record.dt > startWeekDt, record.dt < endWeekDt);
-      return record.dt >= startWeekDt && record.dt <= endWeekDt;
-    }).sort((a, b) => b.dt.toMillis() - a.dt.toMillis());
-    
+    const startWeekDt = startWeekDate 
+      ? DateTime.fromFormat('MM-DD-YYYY', startWeekDate) 
+      : DateTime.fromISO(new Date().toISOString()).startOf('week');
+    const endWeekDt = endWeekDate 
+      ? DateTime.fromFormat('MM-DD-YYYY', endWeekDate) 
+      : startWeekDt.plus({days: 7});
+    return this.games
+      .filter((record) => record.dt >= startWeekDt && record.dt <= endWeekDt)
+      .sort((a, b) => b.dt.toMillis() - a.dt.toMillis());
   }
 
   countOccurrencesOfBulb(str: string) {
     let count = 0;
-    for (let char of str) {
-        if (char === "💡") count++;
-    }
+    for (let char of str) if (char === "💡") count++;
     return count;
   }
 
@@ -99,6 +98,16 @@ export class NYTGGameLeague {
     const startWeekDt = DateTime.fromISO(new Date().toISOString()).startOf('week');
     const endWeekDt = startWeekDt.plus({days: 7});
     return [startWeekDt.toFormat('LLL dd'), endWeekDt.toFormat('LLL dd')]
+  }
+
+  getGameNumber(record: GameRecord) {
+      const gameTypes = ["Connections", "Strands", "Wordle"];
+      for (const gameType of gameTypes) {
+          const regex = new RegExp(`${gameType}\\s+#?(\\d+)`);
+          const match = record.text.match(regex);
+          if (match) return Number(match[1]);
+      }
+      return 0;
   }
 
 
