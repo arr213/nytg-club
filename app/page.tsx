@@ -35,16 +35,16 @@ export default function Index() {
   // }
 
   return (
-    <div className="font-sans antialiased bg-gray-100 h-screen flex flex-col">
+    <div className="font-sans antialiased bg-gray-100 h-screen flex flex-col min-w-[400px]">
         {/* <!-- Header --> */}
         <div className="bg-black text-white py-4 px-8">
             <h1 className="text-2xl font-bold">The Daily Puzzler</h1>
         </div>
 
         {/* <!-- Main Content --> */}
-        <main className="flex-grow overflow-y-auto text-black">
+        <main className="flex-grow overflow-y-auto text-black w-dvw">
             {/* <!-- Weekly Scoreboard --> */}
-            <section className="p-4 text-gray-600">
+            <section className="p-4 text-gray-600 text-center">
                 <h2 className="text-xl font-semibold mb-2">Weekly Standings</h2>
                 <h3 className="text-lg font-semibold mb-2 ml-4">{league.getSeasonDates()[0]} - {league.getSeasonDates()[1]}</h3>
                 <ul>

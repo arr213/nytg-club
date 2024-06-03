@@ -95,17 +95,27 @@ export class NYTGGameLeague {
     return playerScores;
   }
   getSeasonDates() {
-    const startWeekDt = DateTime.fromISO(new Date().toISOString()).startOf('week');
+    const startWeekDt = DateTime.fromISO(new Date().toISOString()).startOf('week').minus({ days: 1 });
     const endWeekDt = startWeekDt.plus({days: 7});
     return [startWeekDt.toFormat('LLL dd'), endWeekDt.toFormat('LLL dd')]
   }
 
   getGameNumber(record: GameRecord) {
       const gameTypes = ["Connections", "Strands", "Wordle"];
-      for (const gameType of gameTypes) {
-          const regex = new RegExp(`${gameType}\\s+#?(\\d+)`);
-          const match = record.text.match(regex);
-          if (match) return Number(match[1]);
+      const gameType = record.text.split(/\W+/)[0];
+
+      if (gameType === "Wordle") {
+        const score = Number(record.text.split(' ')[1].replace(/,/g, ''));
+        if (!isNaN(score)) return score;
+      }
+      if (gameType === "Strands") {
+        const regex = new RegExp(`${gameType}\\s+#?(\\d+)`);
+        const match = record.text.match(regex);
+        if (match && !isNaN(Number(match[1]))) return Number(match[1]);
+      }
+      if (gameType === "Connections") {
+        const match = record.text.match(/#(\d+)/);
+        if (match && !isNaN(Number(match[1]))) return Number(match[1]);
       }
       return 0;
   }

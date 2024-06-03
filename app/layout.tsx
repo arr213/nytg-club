@@ -33,7 +33,7 @@ export default function RootLayout({
         <title>The Daily Puzzler</title>
         {/* <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" /> */}
       </head>
-      <body className="bg-background text-foreground">
+      <body className="bg-background text-foreground bg-gray-200">
         <main className="min-h-screen flex flex-col items-center">
           {children}
         </main>
