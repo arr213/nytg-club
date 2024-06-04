@@ -60,7 +60,11 @@ export default function Index() {
             </section>
 
             {/* <!-- Game History --> */}
-            <section className="p-4">
+            <section className="p-4 text-gray-600">
+                <div>
+                  <h2 className="text-xl font-semibold mb-2 text-center">Game Records</h2>
+                </div>
+                
                 {/* <!-- Sample data: replace with dynamic data --> */}
                 {
                   league.getActiveSeasonGames().map((game) => {

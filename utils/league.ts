@@ -91,7 +91,7 @@ export class NYTGGameLeague {
       let playerGames = scores[player];
       let playerScore = playerGames.reduce((acc, game) => acc + game.score, 0);
       return { player, playerScore, playerGames }
-    });
+    }).sort((a, b) => b.playerScore - a.playerScore);
     return playerScores;
   }
   getSeasonDates() {
