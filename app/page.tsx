@@ -69,14 +69,14 @@ export default function Index() {
                 {
                   league.getActiveSeasonGames().map((game) => {
                     return (
-                      <div key={game.gameType + game.player + game.date} className="flex-shrink-0 bg-white rounded-lg shadow-md p-4 mb-4" >
+                      <div key={game.gameType + game.player + game.gameNumber} className="flex-shrink-0 bg-white rounded-lg shadow-md p-4 mb-4" >
                         <h4 className="text-lg font-semibold mb-2 text-gray-600">{game.gameType}: {game.gameNumber} - {DateTime.fromObject({month: Number(game.date.split('/')[0]),
       day: Number(game.date.split('/')[1]),
       year: Number(game.date.split('/')[2])}).toFormat('ccc LLL d')}</h4>
                         {/* DateTime.fromFormat(game.date, 'MM/DD/YYYY').toFormat('ccc LLL d') */}
                         <p className="font-semibold text-gray-600">{game.player}: {game.score}pts</p>
-                        {game.text.split('\r\n').map(t => {
-                          return <p>{t}</p>
+                        {game.text.split('\r\n').map((t, idx) => {
+                          return <p key={`${t}_${idx}_${game.game_id}`}>{t}</p>
                         })}
                       </div>
                     );

@@ -23,11 +23,13 @@ export class NYTGGameLeague {
   league: string;
   gameRecords: GameRecord[];
   games: ProcessedGameRecord[];
+  gameTypes: string[];
 
   constructor(gameRecords: GameRecord[]) {
     this.league = "NYTG";
     this.gameRecords = gameRecords;
     this.games = this.gameRecords.map((gr) => this.processGame(gr))
+    this.gameTypes = ["Connections", "Strands", "Wordle"];
   }
 
   processGame(gr: GameRecord): ProcessedGameRecord {
@@ -42,6 +44,7 @@ export class NYTGGameLeague {
     let win = false;
     if (gameType === "Wordle") {
       let rows = gr.text.split(/\r\n/).filter(str => str);
+      if (rows[rows.length - 1].includes("Sent from")) rows.pop();
       win = rows[rows.length - 1] === "🟩🟩🟩🟩🟩"
       score = win ? 9 - rows.length : 1;
     } else if (gameType === "Strands") {
@@ -69,13 +72,45 @@ export class NYTGGameLeague {
   getActiveSeasonGames(startWeekDate?: string, endWeekDate?: string) {
     const startWeekDt = startWeekDate 
       ? DateTime.fromFormat('MM-DD-YYYY', startWeekDate) 
-      : DateTime.fromISO(new Date().toISOString()).startOf('week');
+      : DateTime.fromJSDate(new Date())
+        .plus({days:1})
+        .startOf('week')
+        .minus({days:1});
     const endWeekDt = endWeekDate 
       ? DateTime.fromFormat('MM-DD-YYYY', endWeekDate) 
       : startWeekDt.plus({days: 7});
-    return this.games
-      .filter((record) => record.dt >= startWeekDt && record.dt <= endWeekDt)
-      .sort((a, b) => b.dt.toMillis() - a.dt.toMillis());
+    return _.uniqBy(
+      this.games
+        .filter((record) => record.dt >= startWeekDt && record.dt <= endWeekDt)
+        .sort((a, b) => {
+          if (b.game_id < a.game_id){
+            return 1;
+          } else if (b.game_id > a.game_id){
+            return -1;
+          }
+          return 0;
+        }),
+        // .sort((a, b) => b.dt.toMillis() - a.dt.toMillis()),
+      (g) => `${g.game_id}_${g.player}`
+    )
+  }
+
+  getSeasonScoringBreakdown(startWeekDate?: string, endWeekDate?: string) {
+    let scores = _.groupBy(this.getActiveSeasonGames(startWeekDate, endWeekDate), 'player');
+    let playerScores = Object.keys(scores).map((player) => {
+      let playerGames = scores[player];
+      let wordleScore = playerGames
+        .filter(game => game.gameType === "Wordle")
+        .reduce((acc, game) => acc + game.score, 0);
+      let strandsScore = playerGames
+        .filter(game => game.gameType === "Strands")
+        .reduce((acc, game) => acc + game.score, 0);
+      let connectionsScore = playerGames
+        .filter(game => game.gameType === "Connections")
+        .reduce((acc, game) => acc + game.score, 0);
+      return { player, wordleScore, strandsScore, connectionsScore }
+    }).sort((a, b) => b.wordleScore - a.wordleScore);
+    return playerScores;
   }
 
   countOccurrencesOfBulb(str: string) {
@@ -90,18 +125,26 @@ export class NYTGGameLeague {
     let playerScores = Object.keys(scores).map((player) => {
       let playerGames = scores[player];
       let playerScore = playerGames.reduce((acc, game) => acc + game.score, 0);
+      let wordleScore = playerGames
+        .filter(game => game.gameType === "Wordle")
+        .reduce((acc, game) => acc + game.score, 0);
       return { player, playerScore, playerGames }
     }).sort((a, b) => b.playerScore - a.playerScore);
     return playerScores;
   }
+
+
   getSeasonDates() {
-    const startWeekDt = DateTime.fromISO(new Date().toISOString()).startOf('week').minus({ days: 1 });
+    const startWeekDt = DateTime
+      .fromJSDate(new Date())
+      .plus({days: 1})
+      .startOf('week')
+      .minus({days: 1});
     const endWeekDt = startWeekDt.plus({days: 7});
     return [startWeekDt.toFormat('LLL dd'), endWeekDt.toFormat('LLL dd')]
   }
 
   getGameNumber(record: GameRecord) {
-      const gameTypes = ["Connections", "Strands", "Wordle"];
       const gameType = record.text.split(/\W+/)[0];
 
       if (gameType === "Wordle") {
