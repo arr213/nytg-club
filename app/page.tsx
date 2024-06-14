@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { DateTime } from "luxon";
 import {GameRecord, NYTGGameLeague} from "../utils/league";
+import _ from "lodash";
 
 type GameFilter = {
   gameType?: string;
@@ -33,6 +34,14 @@ export default function Index() {
   //   let scores = league.getSeasonScores(); --
   //   debugger;
   // }
+  if (league.games.length) {
+    let grouped = _.groupBy(league.games, g => `${g.date}_${g.gameType}_${g.player}`);
+    Object.values(grouped).forEach((games, key) => {
+      if (games.length > 1) {
+        console.log("Two games on the same day: ", games);
+      }
+    });
+  }
 
   return (
     <div className="font-sans antialiased bg-gray-100 h-screen flex flex-col w-dvw overflow-y-auto">
@@ -70,10 +79,7 @@ export default function Index() {
                   league.getActiveSeasonGames().map((game) => {
                     return (
                       <div key={game.gameType + game.player + game.gameNumber} className="flex-shrink-0 bg-white rounded-lg shadow-md p-4 mb-4" >
-                        <h4 className="text-lg font-semibold mb-2 text-gray-600">{game.gameType}: {game.gameNumber} - {DateTime.fromObject({month: Number(game.date.split('/')[0]),
-      day: Number(game.date.split('/')[1]),
-      year: Number(game.date.split('/')[2])}).toFormat('ccc LLL d')}</h4>
-                        {/* DateTime.fromFormat(game.date, 'MM/DD/YYYY').toFormat('ccc LLL d') */}
+                        <h4 className="text-lg font-semibold mb-2 text-gray-600">{game.gameType}: {game.gameNumber} - {game.dt.toFormat('ccc LLL d')}</h4>
                         <p className="font-semibold text-gray-600">{game.player}: {game.score}pts</p>
                         {game.text.split('\r\n').map((t, idx) => {
                           return <p key={`${t}_${idx}_${game.game_id}`}>{t}</p>

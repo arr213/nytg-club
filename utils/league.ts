@@ -35,11 +35,13 @@ export class NYTGGameLeague {
   processGame(gr: GameRecord): ProcessedGameRecord {
     const gameType = gr.text.split(/\W+/)[0];
     const gameNumber = this.getGameNumber(gr);
-    const dt = DateTime.fromObject({
-      month: Number(gr.date.split('/')[0]),
-      day: Number(gr.date.split('/')[1]),
-      year: Number(gr.date.split('/')[2])
-    });
+
+    let dt = DateTime.fromISO(gr.date);
+    if (gr.date.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/)) {
+      let [month, day, year] = gr.date.split('/').map(Number);
+      dt = DateTime.fromObject({month, day, year});
+    }
+
     let score = 0;
     let win = false;
     if (gameType === "Wordle") {
