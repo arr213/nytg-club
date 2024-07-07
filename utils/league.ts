@@ -46,7 +46,7 @@ export class NYTGGameLeague {
     let win = false;
     if (gameType === "Wordle") {
       let rows = gr.text.split(/\r\n/).filter(str => str);
-      if (rows[rows.length - 1].includes("Sent from")) rows.pop();
+      rows = rows.filter(row => !row.includes("Sent from"));
       win = rows[rows.length - 1] === "🟩🟩🟩🟩🟩"
       score = win ? 9 - rows.length : 1;
     } else if (gameType === "Strands") {
@@ -55,7 +55,7 @@ export class NYTGGameLeague {
       score = Math.max(5 - hintCount, 1)
       win = score > 1;
     } else if (gameType === "Connections") {
-      let rows = gr.text.split(/\r\n/).filter(str => str);
+      let rows = gr.text.split(/\r\n/).filter(str => str && !str.includes("Sent from"));
       let groups = ["🟨🟨🟨🟨","🟩🟩🟩🟩","🟦🟦🟦🟦","🟪🟪🟪🟪"];
       win = groups.every(gr => rows.includes(gr));
       score = win ? 11 - rows.length : 1;
