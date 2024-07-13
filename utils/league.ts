@@ -18,18 +18,27 @@ export type ProcessedGameRecord = GameRecord & {
   win: boolean;
   error_status?: string;
 }
+export type GameChart = {
+  [player: string]: {
+    [gameType: string]: {
+      [dayOfWeek: number]: number
+    }
+  }
+}
 
 export class NYTGGameLeague {
   league: string;
   gameRecords: GameRecord[];
   games: ProcessedGameRecord[];
   gameTypes: string[];
+  dayNumbers: number[];
 
   constructor(gameRecords: GameRecord[]) {
     this.league = "NYTG";
     this.gameRecords = gameRecords;
     this.games = this.gameRecords.map((gr) => this.processGame(gr))
     this.gameTypes = ["Connections", "Strands", "Wordle"];
+    this.dayNumbers = [1, 2, 3, 4, 5, 6, 7];
   }
 
   processGame(gr: GameRecord): ProcessedGameRecord {
@@ -113,6 +122,28 @@ export class NYTGGameLeague {
       return { player, wordleScore, strandsScore, connectionsScore }
     }).sort((a, b) => b.wordleScore - a.wordleScore);
     return playerScores;
+  }
+
+  getSeasonPlayers() {
+    return _.uniq(this.getActiveSeasonGames().map((game) => game.player));
+  }
+
+  getSeasonScoringChart(startWeekDate?: string, endWeekDate?: string): GameChart {
+    // Build a nested object that has the the score stored at chart[player][gameType][dayOfWeek]
+    let chart = {} as GameChart;
+    let scores = _.groupBy(this.getActiveSeasonGames(startWeekDate, endWeekDate), 'player');
+    for (let player in scores) {
+      chart[player] = { Wordle: {}, Strands: {}, Connections: {} };
+      scores[player].forEach((game) => {
+        let dayOfWeek = game.dt.weekday;
+        if (!chart[player][game.gameType][dayOfWeek]) {
+          chart[player][game.gameType][dayOfWeek] =0;
+        }
+        chart[player][game.gameType][dayOfWeek] += game.score;
+      });
+    }
+
+    return chart;
   }
 
   countOccurrencesOfBulb(str: string) {
