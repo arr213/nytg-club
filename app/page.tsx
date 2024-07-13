@@ -46,14 +46,14 @@ export default function Index() {
   //   let scores = league.getSeasonScores(); --
   //   debugger;
   // }
-  if (league.games.length) {
-    let grouped = _.groupBy(league.games, g => `${g.date}_${g.gameType}_${g.player}`);
-    Object.values(grouped).forEach((games, key) => {
-      if (games.length > 1) {
-        console.log("Two games on the same day: ", games);
-      }
-    });
-  }
+  // if (league.games.length) {
+  //   let grouped = _.groupBy(league.games, g => `${g.date}_${g.gameType}_${g.player}`);
+  //   Object.values(grouped).forEach((games, key) => {
+  //     if (games.length > 1) {
+  //       console.log("Two games on the same day: ", games);
+  //     }
+  //   });
+  // }
 
   return (
     <div className="font-sans antialiased bg-gray-100 h-screen flex flex-col w-dvw overflow-y-auto">
@@ -115,7 +115,10 @@ export default function Index() {
                 </div>
                 <section className="p-4">
                   <h2 className="text-xl">Join</h2>
-                  <p className="text-sm text-grey-600">To join the league, start emailing your NYT games scores to: arr213.nytg@valtown.email</p>
+                  <p className="text-sm text-grey-600">
+                    To join the league, start emailing your NYT games scores to: 
+                    <a href= "mailto: name@email.com" className="ml-1">arr213.nytg@valtown.email</a>
+                  </p>
                 </section>
                 <section className="p-4 pt-0">
                   <h2 className="text-xl">Scoring</h2>

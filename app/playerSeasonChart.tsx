@@ -16,8 +16,8 @@ export default function PlayerSeasonChart({league, player}: {
         <div className="w-full">
             <div className="grid grid-cols-[auto,repeat(7,1fr)]">
                 <div className="font-semibold">Game</div>
-                {dayLetters.map((day) => (
-                <div key={day} className="font-semibold">{day}</div>
+                {dayLetters.map((day, idx) => (
+                <div key={day + idx} className="font-semibold">{day}</div>
                 ))}
                 {league.gameTypes.flatMap((gameType) => [
                 <div key={gameType} className="font-semibold">{gameType}</div>,
