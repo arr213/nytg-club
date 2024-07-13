@@ -38,7 +38,7 @@ export class NYTGGameLeague {
     this.gameRecords = gameRecords;
     this.games = this.gameRecords.map((gr) => this.processGame(gr))
     this.gameTypes = ["Connections", "Strands", "Wordle"];
-    this.dayNumbers = [1, 2, 3, 4, 5, 6, 7];
+    this.dayNumbers = [7, 1, 2, 3, 4, 5, 6];
   }
 
   processGame(gr: GameRecord): ProcessedGameRecord {
