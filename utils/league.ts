@@ -92,7 +92,11 @@ export class NYTGGameLeague {
       : startWeekDt.plus({days: 7});
     return _.uniqBy(
       this.games
-        .filter((record) => record.dt >= startWeekDt && record.dt <= endWeekDt)
+        .filter((record) => {
+          return record.dt >= startWeekDt 
+            && record.dt <= endWeekDt 
+            && this.gameTypes.includes(record.gameType)
+        })
         .sort((a, b) => {
           if (b.game_id < a.game_id){
             return 1;
@@ -135,11 +139,16 @@ export class NYTGGameLeague {
     for (let player in scores) {
       chart[player] = { Wordle: {}, Strands: {}, Connections: {} };
       scores[player].forEach((game) => {
-        let dayOfWeek = game.dt.weekday;
-        if (!chart[player][game.gameType][dayOfWeek]) {
-          chart[player][game.gameType][dayOfWeek] =0;
+        if (!game.gameType) return;
+        try {
+          let dayOfWeek = game.dt.weekday;
+          if (!chart[player][game.gameType][dayOfWeek]) {
+            chart[player][game.gameType][dayOfWeek] =0;
+          }
+          chart[player][game.gameType][dayOfWeek] += game.score;
+        } catch(e) {
+          console.log("Error processing game", game, e);
         }
-        chart[player][game.gameType][dayOfWeek] += game.score;
       });
     }
 
