@@ -169,7 +169,7 @@ export class NYTGGameLeague {
       scores[player].forEach((game) => {
         if (!game.gameType) return;
         try {
-          let dayOfWeek = game.dt.weekday;
+          let dayOfWeek = DateTime.fromFormat(game.gameDate, "yyyy_MM_dd").weekday;
           if (!chart[player][game.gameType][dayOfWeek]) {
             chart[player][game.gameType][dayOfWeek] =0;
           }
