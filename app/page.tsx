@@ -28,7 +28,6 @@ export default function Index() {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [filters, setFilters] = useState<{}>({});
   useEffect(() => {
-    // Your code here
     fetch("https://arr213-azureZebra.web.val.run/")
       .then((response) => response.json())
       .then((data) => {
@@ -41,19 +40,6 @@ export default function Index() {
   }, []);
 
   const league = new NYTGGameLeague(records);
-  // if (league.games.length) {
-  //   let activeGames = league.getActiveSeasonGames();
-  //   let scores = league.getSeasonScores(); --
-  //   debugger;
-  // }
-  // if (league.games.length) {
-  //   let grouped = _.groupBy(league.games, g => `${g.date}_${g.gameType}_${g.player}`);
-  //   Object.values(grouped).forEach((games, key) => {
-  //     if (games.length > 1) {
-  //       console.log("Two games on the same day: ", games);
-  //     }
-  //   });
-  // }
 
   return (
     <div className="font-sans antialiased bg-gray-100 h-screen flex flex-col w-dvw overflow-y-auto">
@@ -94,6 +80,23 @@ export default function Index() {
                   <h2 className="text-xl font-semibold mb-2 text-center">Game Records</h2>
                   {/* Add filters?? */}
                 </div>
+                {/* <div>
+                  {Object.values(_.groupBy(league.getActiveSeasonGames(), g => g.game_id)).map((games, game_id) => {
+                    let firstGame = games[0];
+                    return (
+                      <div key={game_id} className="flex-shrink-0 bg-white rounded-lg shadow-md p-4 mb-4">
+                        <h3 className="text-lg font-semibold mb-2 text-gray-600">
+                          {firstGame.gameType}: {firstGame.gameNumber} - {DateTime.fromFormat(firstGame.gameDate, "yyyy_MM_dd").toFormat("cccc, LLL d")}
+                        </h3>
+                        {games.map((game) => {
+                          return <div key={game.gameType + game.player + game.gameNumber} className="" >
+                            <p className="font-semibold text-gray-600">{game.player}: {game.score}pts</p>
+                          </div>
+                        })}
+                      </div>
+                    )
+                  })}
+                </div> */}
                 
                 {/* <!-- Sample data: replace with dynamic data --> */}
                 {league.getActiveSeasonGames().map((game) => (

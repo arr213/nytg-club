@@ -12,6 +12,7 @@ export type GameRecord = {
 export type ProcessedGameRecord = GameRecord & {
   gameNumber: number;
   gameType: string;
+  gameDate: string;
   dt: DateTime;
   score: number;
   game_id: string; // `${gameType.toLowercase()}_${leftPad(gameNumber, 5, '0')}`
@@ -53,27 +54,41 @@ export class NYTGGameLeague {
 
     let score = 0;
     let win = false;
+    let gameDate = "";
     if (gameType === "Wordle") {
+
       let rows = gr.text.split(/\r\n/).filter(str => str);
       rows = rows.filter(row => !row.includes("Sent from"));
       win = rows[rows.length - 1] === "🟩🟩🟩🟩🟩"
       score = win ? 9 - rows.length : 1;
+      // gameDate = 6/20/2021 + gameNumber of days since (use local timezone)
+      gameDate = DateTime.fromISO("2021-06-19", {zone: "local"}).plus({days: gameNumber}).toFormat("yyyy_MM_dd");
+
     } else if (gameType === "Strands") {
+
       let rows = gr.text.split(/\r\n/).filter(str => str);
       let hintCount = this.countOccurrencesOfBulb(rows.slice(2).join(''));
       score = Math.max(5 - hintCount, 1)
       win = score > 1;
+      // gameDate = 3/4/2024 + gameNumber of days since (use local timezone)
+      gameDate = DateTime.fromISO("2024-03-03", {zone: "local"}).plus({days: gameNumber}).toFormat("yyyy_MM_dd");
+
     } else if (gameType === "Connections") {
+
       let rows = gr.text.split(/\r\n/).filter(str => str && !str.includes("Sent from"));
       let groups = ["🟨🟨🟨🟨","🟩🟩🟩🟩","🟦🟦🟦🟦","🟪🟪🟪🟪"];
       win = groups.every(gr => rows.includes(gr));
       score = win ? 11 - rows.length : 1;
+      // gameDate = 6/12/2023 + gameNumber of days since (use local timezone)
+      gameDate = DateTime.fromISO("2023-06-11", {zone: "local"}).plus({days: gameNumber}).toFormat("yyyy_MM_dd");
+
     }
     return {
       game_id: `${gameType.toLowerCase()}_${gameNumber.toString().padStart(5, '0')}`,
       ...gr,
       gameType,
       gameNumber,
+      gameDate,
       dt,
       score,
       win
@@ -89,12 +104,16 @@ export class NYTGGameLeague {
         .minus({days:1});
     const endWeekDt = endWeekDate 
       ? DateTime.fromFormat('MM-DD-YYYY', endWeekDate) 
-      : startWeekDt.plus({days: 7});
+      : startWeekDt.plus({days: 6});
+
+    const startWeekGameDate = startWeekDt.toFormat("yyyy_MM_dd");
+    const endWeekGameDate = endWeekDt.toFormat("yyyy_MM_dd");
+
     return _.uniqBy(
       this.games
         .filter((record) => {
-          return record.dt >= startWeekDt 
-            && record.dt <= endWeekDt 
+          return record.gameDate >= startWeekGameDate 
+            && record.gameDate <= endWeekGameDate 
             && this.gameTypes.includes(record.gameType)
         })
         .sort((a, b) => {
@@ -108,6 +127,15 @@ export class NYTGGameLeague {
         // .sort((a, b) => b.dt.toMillis() - a.dt.toMillis()),
       (g) => `${g.game_id}_${g.player}`
     )
+  }
+
+  getLastWeekGames() {
+    const startWeekDt = DateTime.fromJSDate(new Date())
+      .minus({days:6})
+      .startOf('week')
+      .minus({days:1});
+    const endWeekDt = startWeekDt.plus({days: 7});
+    return this.getActiveSeasonGames(startWeekDt.toFormat('MM-DD-YYYY'), endWeekDt.toFormat('MM-DD-YYYY'));
   }
 
   getSeasonScoringBreakdown(startWeekDate?: string, endWeekDate?: string) {
@@ -167,9 +195,6 @@ export class NYTGGameLeague {
     let playerScores = Object.keys(scores).map((player) => {
       let playerGames = scores[player];
       let playerScore = playerGames.reduce((acc, game) => acc + game.score, 0);
-      let wordleScore = playerGames
-        .filter(game => game.gameType === "Wordle")
-        .reduce((acc, game) => acc + game.score, 0);
       return { player, playerScore, playerGames }
     }).sort((a, b) => b.playerScore - a.playerScore);
     return playerScores;
@@ -182,7 +207,7 @@ export class NYTGGameLeague {
       .plus({days: 1})
       .startOf('week')
       .minus({days: 1});
-    const endWeekDt = startWeekDt.plus({days: 7});
+    const endWeekDt = startWeekDt.plus({days: 6});
     return [startWeekDt.toFormat('LLL dd'), endWeekDt.toFormat('LLL dd')]
   }
 
