@@ -230,6 +230,22 @@ export class NYTGGameLeague {
       return 0;
   }
 
+  gamesByDateAndType() {
+    // return a nested object with the games grouped by date then by gameType
+    // There will be a list of games for each date and gameType
+    let gamesByDateAndType: { [date: string]: { [gameType: string]: ProcessedGameRecord[] } } = {};
+    for (let game of this.getActiveSeasonGames()) {
+      if (!gamesByDateAndType[game.gameDate]) {
+        gamesByDateAndType[game.gameDate] = {};
+      }
+      if (!gamesByDateAndType[game.gameDate][game.gameType]) {
+        gamesByDateAndType[game.gameDate][game.gameType] = [];
+      }
+      gamesByDateAndType[game.gameDate][game.gameType].push(game);
+    }
+    return gamesByDateAndType;
+  }
+
 
 }
 

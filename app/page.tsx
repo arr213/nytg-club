@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { DateTime } from "luxon";
-import {GameRecord, NYTGGameLeague} from "../utils/league";
+import {GameRecord, NYTGGameLeague, ProcessedGameRecord} from "../utils/league";
 import _ from "lodash";
 import {
   Accordion, 
@@ -40,6 +40,7 @@ export default function Index() {
   }, []);
 
   const league = new NYTGGameLeague(records);
+  const gamesByDateAndType = league.gamesByDateAndType();
 
   return (
     <div className="font-sans antialiased bg-gray-100 h-screen flex flex-col w-dvw overflow-y-auto">
@@ -48,9 +49,9 @@ export default function Index() {
         </div>
 
         {/* <!-- Main Content --> */}
-        <main className="flex-grow text-black md:w-1/2 mx-auto lg:w-1/3">
+        <main className="flex-grow text-black md:w-1/2 mx-auto lg:w-1/3 w-full">
             {/* <!-- Weekly Scoreboard --> */}
-            <section className="p-4 text-gray-600 text-center">
+            <section className="p-4 text-gray-600 text-center w-full">
                 <h2 className="text-xl font-semibold mb-2">
                   Weekly Standings
                   <span className="ml-1" onClick={() => setModalOpen(true)}><Info /></span>
@@ -66,7 +67,7 @@ export default function Index() {
                                 <h1 className="font-semibold">{score.playerScore}</h1>
                               </div>
                             </AccordionSummary>
-                            <AccordionDetails className="p-0">
+                            <AccordionDetails className="p-0 pl-4 pb-2">
                               <PlayerSeasonChart league={league} player={score.player} />
                             </AccordionDetails>
                           </Accordion>
@@ -75,31 +76,36 @@ export default function Index() {
                 </div>
             </section>
             {/* <!-- Game History --> */}
-            <section className="p-4 text-gray-600">
+            <section className="p-4 text-gray-600 w-full">
                 <div>
                   <h2 className="text-xl font-semibold mb-2 text-center">Game Records</h2>
                   {/* Add filters?? */}
                 </div>
-                {/* <div>
-                  {Object.values(_.groupBy(league.getActiveSeasonGames(), g => g.game_id)).map((games, game_id) => {
-                    let firstGame = games[0];
+
+                {/* Games grouped by game_id */}
+                <div>
+                  {Object.keys(gamesByDateAndType).sort((a,b) => b < a ? -1 : 1).map(dateStr => {
                     return (
-                      <div key={game_id} className="flex-shrink-0 bg-white rounded-lg shadow-md p-4 mb-4">
-                        <h3 className="text-lg font-semibold mb-2 text-gray-600">
-                          {firstGame.gameType}: {firstGame.gameNumber} - {DateTime.fromFormat(firstGame.gameDate, "yyyy_MM_dd").toFormat("cccc, LLL d")}
-                        </h3>
-                        {games.map((game) => {
-                          return <div key={game.gameType + game.player + game.gameNumber} className="" >
-                            <p className="font-semibold text-gray-600">{game.player}: {game.score}pts</p>
+                      <div key={`game_day_${dateStr}`}>
+                        <h3 className="text-xl font-semibold mb-2 text-gray-600">{DateTime.fromFormat(dateStr, "yyyy_MM_dd").toFormat("cccc, LLL d")}</h3>
+                        {Object.keys(gamesByDateAndType[dateStr]).map(gameType => {
+                          return <div key={`game_type_${gameType}`}>
+                            <h4 className="text-lg font-semibold mb-2 text-gray-600">{gameType} #{gamesByDateAndType[dateStr][gameType][0].gameNumber}</h4>
+                            <div className="flex flex-row gap-2 overflow-x-scroll w-full">
+                            {gamesByDateAndType[dateStr][gameType].map(game => {
+                              // make this div white rounded-lg shadow-md p-4 mb-4 min-width of 200px
+                              return <GameCard key={game.game_id + game.player} game={game} />
+                            })}
+                            </div>
                           </div>
                         })}
                       </div>
                     )
                   })}
-                </div> */}
+                </div>
                 
                 {/* <!-- Sample data: replace with dynamic data --> */}
-                {league.getActiveSeasonGames().map((game) => (
+                {/* {league.getActiveSeasonGames().map((game) => (
                   <div key={game.gameType + game.player + game.gameNumber} className="flex-shrink-0 bg-white rounded-lg shadow-md p-4 mb-4" >
                     <h4 className="text-lg font-semibold mb-2 text-gray-600">{game.gameType}: {game.gameNumber} - {game.dt.toFormat('ccc LLL d')}</h4>
                     <p className="font-semibold text-gray-600">{game.player}: {game.score}pts</p>
@@ -107,7 +113,7 @@ export default function Index() {
                       return <p key={`${t}_${idx}_${game.game_id}`}>{t}</p>
                     })}
                   </div>
-                ))}
+                ))} */}
                 {/* <!-- Add more date sections dynamically --> */}
             </section>
             <Modal open={modalOpen} onClose={() => setModalOpen(false)} className="bg-grey-200 p-4 mx-auto my-auto w-80/100 md:w-1/4">
@@ -146,3 +152,32 @@ export default function Index() {
   );
 }
 
+
+
+function GameCard({game}: {game: ProcessedGameRecord}) {
+  let gameText = game.text.split('\r\n');
+
+  gameText = gameText.filter(line => !line.includes("Sent from"));
+
+  switch (game.gameType) {
+    case "Wordle":
+      const topLine = gameText[0].split(" ");
+      gameText[0] = topLine[topLine.length - 1];
+      break;
+    case "Connections":
+      gameText = gameText.slice(2);
+      break;
+    case "Strands":
+      gameText = gameText.slice(1);
+      break;
+  }
+
+  return (
+    <div key={game.game_id + game.player} className="bg-white rounded-lg shadow-md p-4 mb-4 min-w-60">
+      <p className="font-semibold text-gray-600">{game.player}: {game.score}pts</p>
+      {gameText.map((t, idx) => {
+        return <p key={`${t}_${idx}_${game.game_id}`}>{t}</p>
+      })}
+    </div>
+  )
+}
