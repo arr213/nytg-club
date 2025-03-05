@@ -116,8 +116,8 @@ export default function Index() {
                 ))} */}
                 {/* <!-- Add more date sections dynamically --> */}
             </section>
-            <Modal open={modalOpen} onClose={() => setModalOpen(false)} className="bg-grey-200 p-4 mx-auto my-auto w-80/100 md:w-1/4">
-              <div className="bg-white p-4 mx-auto my-auto w-3/4 md:w-1/4">
+            <Modal open={modalOpen} onClose={() => setModalOpen(false)} className="bg-grey-200 p-4 mx-auto my-auto w-80/100 md:w-2/3">
+              <div className="bg-white p-4 mx-auto my-auto w-3/4 md:w-1/4 min-w-60">
                 <div className="flex justify-between">
                   <h1 className="text-2xl font-semibold">League Info</h1>
                   <Close onClick={() => setModalOpen(false)} />
